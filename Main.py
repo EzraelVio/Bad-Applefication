@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 from Calc import *
 
 print('Reading files...')
@@ -63,6 +63,11 @@ while True:
     if not ret or frame_count == 2500:
         break
 
+    # Convert to grayscale
+    bad_apple_frame = cv2.cvtColor(bad_apple_frame, cv2.COLOR_BGR2GRAY)
+    _, bad_apple_frame = cv2.threshold(bad_apple_frame, 127, 255, cv2.THRESH_BINARY)
+    bad_apple_frame = cv2.cvtColor(bad_apple_frame, cv2.COLOR_GRAY2BGR)
+
     # Read frames from white and black videos into memory
     white_video.set(cv2.CAP_PROP_POS_FRAMES, frame_count)
     ret_w, frame_w = white_video.read()
@@ -83,7 +88,6 @@ while True:
         # bad_apple_frame[other_pixels] = merge_pixels(frame_w[other_pixels], frame_b[other_pixels])
         other_pixels_2d = np.nonzero(other_pixels.reshape(bad_apple_frame.shape[0], -1))
         bad_apple_frame[other_pixels_2d] = merge_pixels(frame_w[other_pixels_2d], frame_b[other_pixels_2d])
-
 
     out.write(bad_apple_frame)
     frame_count += 1
